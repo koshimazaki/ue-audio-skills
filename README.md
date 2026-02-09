@@ -2,21 +2,21 @@
 
 Agent skills for Unreal Engine 5 game audio development. Build complete audio systems spanning **MetaSounds** (DSP), **Blueprints** (game logic), and **Wwise** (mixing) from natural language.
 
-Built for the [UE Audio MCP](https://github.com/radeksvarz/UE5-WWISE) server.
+Built for the [UE Audio MCP](https://github.com/koshimazaki/UE5-WWISE) server.
 
 ## Install
 
 ```bash
-npx skills add radeksvarz/ue-audio-skills
+npx skills add koshimazaki/ue-audio-skills
 ```
 
 Install specific skills:
 
 ```bash
-npx skills add radeksvarz/ue-audio-skills --skill mcp-plugin
-npx skills add radeksvarz/ue-audio-skills --skill metasound-dsp
-npx skills add radeksvarz/ue-audio-skills --skill unreal-bp
-npx skills add radeksvarz/ue-audio-skills --skill build-system
+npx skills add koshimazaki/ue-audio-skills --skill mcp-plugin
+npx skills add koshimazaki/ue-audio-skills --skill metasound-dsp
+npx skills add koshimazaki/ue-audio-skills --skill unreal-bp
+npx skills add koshimazaki/ue-audio-skills --skill build-system
 ```
 
 ## Skills
@@ -42,7 +42,7 @@ Asset scanning       Graph templates        SoundBanks
 ## Requirements
 
 - Unreal Engine 5.4+ (MetaSounds Builder API)
-- [UE Audio MCP](https://github.com/radeksvarz/UE5-WWISE) server + C++ plugin
+- [UE Audio MCP](https://github.com/koshimazaki/UE5-WWISE) server + C++ plugin
 - Wwise (optional, for full pipeline)
 
 ## Compatibility
