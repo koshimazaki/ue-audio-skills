@@ -1,13 +1,15 @@
 ---
 name: mcp-plugin
-description: UE5 Audio MCP plugin TCP control. Use when sending commands to the Unreal Editor plugin, building MetaSounds graphs via TCP, scanning blueprints, listing assets, or debugging the plugin connection on port 9877.
+description: UE5 Audio MCP plugin TCP control. Use when sending commands to the Unreal Editor plugin, building MetaSounds graphs via TCP, scanning blueprints, editing Blueprint graphs, spawning audio actors, or debugging the plugin connection on port 9877.
 allowed-tools: Bash, Read, Grep, Glob
 argument-hint: [command-or-task]
 ---
 
-# UE Audio MCP Plugin — TCP Control
+# UE Audio MCP Plugin — TCP Control (42 Commands)
 
 Drive the C++ TCP server inside Unreal Editor. All commands use 4-byte big-endian length prefix + UTF-8 JSON on `127.0.0.1:9877`.
+
+Requires the [UE Audio MCP Plugin](https://github.com/koshimazaki/UE-AUDIO-MCP) installed in your UE5 project.
 
 ## Connection
 
@@ -27,27 +29,27 @@ r = s.recv(4); l = struct.unpack('>I', r)[0]; print(json.loads(s.recv(l)))
 "
 ```
 
-## All 24 Commands
+## All 42 Commands
 
-### System
+### System (1)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `ping` | — | engine, version, project, features[] |
 
-### Builder Lifecycle
+### MetaSounds Builder Lifecycle (3)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `create_builder` | asset_type (Source/Patch/Preset), name | asset_type, name |
 | `add_interface` | interface | — |
 | `build_to_asset` | name, path (/Game/...) | name, path |
 
-### Graph I/O
+### Graph I/O (2)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `add_graph_input` | name, type, default? | name, type |
 | `add_graph_output` | name, type | name, type |
 
-### Nodes
+### Node Operations (3)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `add_node` | id, node_type, position? [x,y] | id, node_type |
@@ -56,44 +58,78 @@ r = s.recv(4); l = struct.unpack('>I', r)[0]; print(json.loads(s.recv(l)))
 
 `__graph__` = sentinel node ID for graph boundary connections.
 
-### Audition
+### Audition & Editor (3)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `audition` | name? | — |
 | `stop_audition` | — | — |
 | `open_in_editor` | — | — |
 
-### Variables (UE 5.7+)
+### Graph Variables (3, UE 5.7+)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `add_graph_variable` | name, type, default? | name, type |
 | `add_variable_get_node` | id, variable_name, delayed? | id, variable_name |
 | `add_variable_set_node` | id, variable_name | id, variable_name |
 
-### Presets
+### Presets (2)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `convert_to_preset` | referenced_asset (/Game/...) | referenced_asset |
 | `convert_from_preset` | — | — |
 
-### Query
+### Query & Export (7)
 | Command | Params | Returns |
 |---------|--------|---------|
-| `list_node_classes` | filter?, limit? (200) | nodes[], total, shown |
+| `list_node_classes` | filter?, limit? (200), include_pins?, include_metadata? | nodes[], total, shown |
+| `list_metasound_nodes` | *(alias for list_node_classes)* | same |
 | `get_node_locations` | asset_path | nodes[], edges[] |
 | `get_graph_input_names` | — | names[], count |
 | `set_live_updates` | enabled (bool) | enabled |
+| `export_metasound` | asset_path | asset_type, is_preset, interfaces[], graph_inputs[], graph_outputs[], variables[], nodes[], edges[] |
+| `list_blueprint_functions` | filter?, class_filter?, audio_only?, limit?, include_pins?, list_classes_only? | functions[], total |
 
-### Blueprint & Assets
+### Blueprint & Assets (4)
 | Command | Params | Returns |
 |---------|--------|---------|
 | `call_function` | function, args? | function, return_value? |
 | `list_assets` | class_filter?, path?, limit? | assets[], total, shown |
 | `scan_blueprint` | asset_path, audio_only?, include_pins? | graphs[], audio_summary |
+| `export_audio_blueprint` | asset_path | nodes[], edges[], audio_summary |
 
 Allowlisted functions: PlaySound2D, PlaySoundAtLocation, SpawnSoundAtLocation, SpawnSound2D, SetSoundMixClassOverride, ClearSoundMixClassOverride, PushSoundMixModifier, PopSoundMixModifier, SetGlobalPitchModulation, SetGlobalListenerFocusParameters, PlayDialogue2D, PlayDialogueAtLocation, SpawnDialogue2D, SpawnDialogueAtLocation, GetPlayerCameraManager, GetPlayerController, GetPlayerPawn.
 
 class_filter values: Blueprint, WidgetBlueprint, AnimBlueprint, MetaSoundSource, MetaSoundPatch, SoundWave, SoundCue, SoundAttenuation, SoundClass, SoundConcurrency, SoundMix, ReverbEffect.
+
+### Blueprint Builder (7)
+| Command | Params | Returns |
+|---------|--------|---------|
+| `bp_open_blueprint` | asset_path | asset_path, graphs[] |
+| `bp_add_node` | kind (CallFunction/CustomEvent/VariableGet/VariableSet), name, graph? | node_id, kind, name |
+| `bp_connect_pins` | from_node, from_pin, to_node, to_pin | all four |
+| `bp_set_pin_default` | node_id, pin_name, value | node_id, pin_name |
+| `bp_compile` | — | success, errors[], warnings[] |
+| `bp_register_existing_node` | node_id, graph? | node_id, name, kind |
+| `bp_list_pins` | node_id | pins[] (name, type, direction, connected, default) |
+
+Node kinds: `CallFunction` (audio API calls), `CustomEvent` (event receivers), `VariableGet`/`VariableSet` (Blueprint variables).
+Security: Only allowlisted audio functions can be called — prevents arbitrary code execution.
+
+### World Audio Setup (7)
+| Command | Params | Returns |
+|---------|--------|---------|
+| `place_anim_notify` | animation_path, notify_type, time, sound? | animation_path, notify_type, time |
+| `place_bp_anim_notify` | animation_path, notify_class, time | animation_path, time |
+| `spawn_audio_emitter` | sound_path, location [x,y,z], name?, attenuation? | name, location |
+| `import_sound_file` | file_path, destination | source_path, destination, asset_name |
+| `set_physical_surface` | material_path, surface_type | material_path, surface_type |
+| `place_audio_volume` | location [x,y,z], extent [x,y,z], name?, reverb_effect?, priority? | name, location, volume_extent |
+| `spawn_blueprint_actor` | blueprint_path, location [x,y,z], name?, rotation? [p,y,r] | name, blueprint_path, location |
+
+### Assets (1)
+| Command | Params | Returns |
+|---------|--------|---------|
+| `duplicate_asset` | source_path, dest_path, dest_name | source_path, dest_path |
 
 ## Key Pin Names
 
@@ -120,30 +156,29 @@ Full pin reference: `scripts/ms_node_specs.json` (93 nodes, 464 pins)
 {"action":"build_to_asset", "name":"MySine", "path":"/Game/Audio/MCP"}
 ```
 
-### Filtered Synth with Envelope
+### Blueprint Audio Wiring
 ```json
-{"action":"create_builder", "asset_type":"Source", "name":"FilteredSynth"}
-{"action":"add_interface", "interface":"MetaSound"}
-{"action":"add_graph_output", "name":"Out Mono", "type":"Audio"}
-{"action":"add_graph_input", "name":"Cutoff", "type":"Float", "default":"2000.0"}
-{"action":"add_node", "id":"osc", "node_type":"UE::Saw::Audio"}
-{"action":"add_node", "id":"filt", "node_type":"UE::Biquad Filter::Audio"}
-{"action":"add_node", "id":"env", "node_type":"AD Envelope"}
-{"action":"add_node", "id":"mul", "node_type":"UE::Multiply::Audio"}
-{"action":"connect", "from_node":"osc", "from_pin":"Audio", "to_node":"filt", "to_pin":"In"}
-{"action":"connect", "from_node":"__graph__", "from_pin":"Cutoff", "to_node":"filt", "to_pin":"Cutoff Frequency"}
-{"action":"connect", "from_node":"filt", "from_pin":"Out", "to_node":"mul", "to_pin":"Primary Operand"}
-{"action":"connect", "from_node":"env", "from_pin":"Out Envelope", "to_node":"mul", "to_pin":"Operand"}
-{"action":"connect", "from_node":"mul", "from_pin":"Out", "to_node":"__graph__", "to_pin":"Out Mono"}
-{"action":"build_to_asset", "name":"FilteredSynth", "path":"/Game/Audio/MCP"}
+{"action":"bp_open_blueprint", "asset_path":"/Game/BP_Player"}
+{"action":"bp_add_node", "kind":"CallFunction", "name":"PlaySound2D"}
+{"action":"bp_add_node", "kind":"CustomEvent", "name":"OnFootstep"}
+{"action":"bp_connect_pins", "from_node":"OnFootstep", "from_pin":"then", "to_node":"PlaySound2D", "to_pin":"execute"}
+{"action":"bp_compile"}
 ```
 
-### Project Scan
+### World Audio Setup
+```json
+{"action":"import_sound_file", "file_path":"/sounds/footstep_concrete_01.wav", "destination":"/Game/Audio/Footsteps"}
+{"action":"spawn_audio_emitter", "sound_path":"/Game/Audio/Ambient/Wind", "location":[0,0,100], "name":"WindEmitter"}
+{"action":"place_audio_volume", "location":[0,0,200], "extent":[500,500,300], "reverb_effect":"/Game/Audio/Reverb/LargeHall"}
+{"action":"place_anim_notify", "animation_path":"/Game/Anims/Walk", "notify_type":"PlaySound", "time":0.3, "sound":"/Game/Audio/Footsteps/Step01"}
+```
+
+### Project Scan & Export
 ```json
 {"action":"list_assets", "class_filter":"Blueprint"}
 {"action":"scan_blueprint", "asset_path":"/Game/BP_Player", "audio_only":true}
 {"action":"list_assets", "class_filter":"MetaSoundSource"}
-{"action":"get_node_locations", "asset_path":"/Game/Audio/MS_Gunshot"}
+{"action":"export_metasound", "asset_path":"/Game/Audio/MS_Gunshot"}
 ```
 
 Or batch: `python scripts/scan_project.py --full-export --import-db --rebuild-embeddings`
@@ -157,12 +192,14 @@ Or batch: `python scripts/scan_project.py --full-export --import-db --rebuild-em
 - TCP drops after ~17 rapid commands — use reconnect with progressive delay
 - Builder state is global — only one active builder at a time
 - `list_node_classes` discovers real class names — the 65-name registry may miss some
+- BP Builder is additive-only — no node deletion (add nodes + wire, don't remove)
+- `bp_compile` may fail silently — check errors[] in response
+- World commands spawn into the current editor level — save before spawning
 
 ## Source Files
 
-- C++ commands: `ue5_plugin/UEAudioMCP/Source/UEAudioMCP/Private/Commands/`
-- TCP server: `ue5_plugin/UEAudioMCP/Source/UEAudioMCP/Private/AudioMCPTCPServer.cpp`
+- C++ plugin: [UE-AUDIO-MCP](https://github.com/koshimazaki/UE-AUDIO-MCP) (42 commands, TCP:9877)
 - Python tools: `src/ue_audio_mcp/tools/`
-- Node registry: `src/ue_audio_mcp/knowledge/metasound_nodes.py` (144 nodes, 798 pins)
+- Node registry: `src/ue_audio_mcp/knowledge/metasound_nodes.py` (195 nodes, 1053 entries)
 
 $ARGUMENTS
