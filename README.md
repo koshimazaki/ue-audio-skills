@@ -13,24 +13,24 @@ npx skills add koshimazaki/ue-audio-skills
 Install specific skills:
 
 ```bash
-npx skills add koshimazaki/ue-audio-skills --skill metasound-dsp
-npx skills add koshimazaki/ue-audio-skills --skill unreal-bp
-npx skills add koshimazaki/ue-audio-skills --skill build-system
-npx skills add koshimazaki/ue-audio-skills --skill wwise-setup
-npx skills add koshimazaki/ue-audio-skills --skill mcp-plugin
-npx skills add koshimazaki/ue-audio-skills --skill add-command
+npx skills add koshimazaki/ue-audio-skills --skill ue5-metasound-dsp
+npx skills add koshimazaki/ue-audio-skills --skill ue5-blueprint-audio
+npx skills add koshimazaki/ue-audio-skills --skill ue5-audio-builder
+npx skills add koshimazaki/ue-audio-skills --skill ue5-wwise-setup
+npx skills add koshimazaki/ue-audio-skills --skill ue5-audio-mcp
+npx skills add koshimazaki/ue-audio-skills --skill ue5-plugin-dev
 ```
 
 ## Skills
 
 | Skill | What it does | Requires plugin? |
 |-------|-------------|:---:|
-| **metasound-dsp** | MetaSounds DSP specialist — 195 nodes across 23 categories, Builder API, signal flow patterns, graph templates | No |
-| **unreal-bp** | Blueprint audio logic — game event detection, parameter wiring, asset scanning, audio component patterns | No |
-| **build-system** | Full pipeline orchestrator — generates complete MetaSounds + Blueprint + Wwise systems from a single description, 10 audio patterns, AAA project scaffolding | No (offline mode) |
-| **wwise-setup** | Wwise project automation via WAAPI — bus hierarchies, RTPCs, switches, events, SoundBanks, AudioLink setup | No (needs Wwise) |
-| **mcp-plugin** | TCP plugin control — 42 commands for building MetaSounds graphs, editing Blueprints, spawning audio actors, scanning/exporting assets via the UE5 Editor plugin on port 9877 | Yes |
-| **add-command** | Contributor guide — 6-file checklist for adding new C++ TCP commands + Python MCP tool wrappers to the plugin | Yes (source) |
+| **ue5-metasound-dsp** | MetaSounds DSP specialist — 195 nodes across 23 categories, Builder API, signal flow patterns, graph templates | No |
+| **ue5-blueprint-audio** | Blueprint audio logic — game event detection, parameter wiring, asset scanning, audio component patterns | No |
+| **ue5-audio-builder** | Full pipeline orchestrator — generates complete MetaSounds + Blueprint + Wwise systems from a single description, 10 audio patterns, AAA project scaffolding | No (offline mode) |
+| **ue5-wwise-setup** | Wwise project automation via WAAPI — bus hierarchies, RTPCs, switches, events, SoundBanks, AudioLink setup | No (needs Wwise) |
+| **ue5-audio-mcp** | TCP plugin control — 42 commands for building MetaSounds graphs, editing Blueprints, spawning audio actors, scanning/exporting assets via the UE5 Editor plugin on port 9877 | Yes |
+| **ue5-plugin-dev** | Contributor guide — 6-file checklist for adding new C++ TCP commands + Python MCP tool wrappers to the plugin | Yes (source) |
 
 The first four skills work standalone — they provide knowledge, patterns, templates, and WAAPI automation without needing the UE5 Editor plugin. The last two require the [companion plugin](#companion-plugin).
 
