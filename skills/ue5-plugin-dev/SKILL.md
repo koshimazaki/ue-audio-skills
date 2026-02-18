@@ -1,8 +1,8 @@
 ---
 name: ue5-plugin-dev
 description: Add a new C++ TCP command + Python MCP tool to the UE Audio MCP plugin. Guides you through the 6-file checklist so nothing gets missed.
-allowed-tools: Read, Edit, Write, Bash, Grep, Glob
-argument-hint: [command_name] [brief description]
+allowed-tools: Read Bash Grep Glob Edit Write
+argument-hint: [command-name]
 ---
 
 # Add New Command to UE Audio MCP
