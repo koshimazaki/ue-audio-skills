@@ -1,7 +1,7 @@
 ---
 name: ue5-audio-builder
 description: Full pipeline audio system generator. Use when building complete game audio systems that span MetaSounds + Blueprint + Wwise layers, generating AAA project structures, or orchestrating multi-layer audio from a natural language description.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Read Grep Glob Bash
 argument-hint: [audio-system-description]
 ---
 

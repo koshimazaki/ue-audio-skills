@@ -1,7 +1,7 @@
 ---
 name: ue5-audio-mcp
 description: UE5 Audio MCP plugin TCP control. Use when sending commands to the Unreal Editor plugin, building MetaSounds graphs via TCP, scanning blueprints, editing Blueprint graphs, spawning audio actors, or debugging the plugin connection on port 9877.
-allowed-tools: Bash, Read, Grep, Glob
+allowed-tools: Bash Read Grep Glob
 argument-hint: [command-or-task]
 ---
 
