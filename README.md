@@ -2,7 +2,7 @@
 
 Agent skills for Unreal Engine 5 game audio development. Build complete audio systems spanning **MetaSounds** (DSP), **Blueprints** (game logic), and **Wwise** (mixing) from natural language.
 
-Built for the [UE Audio MCP](https://github.com/koshimazaki/UE5-WWISE) server.
+Built for the [UE Audio MCP](https://github.com/koshimazaki/UE-AUDIO-MCP) server and Unreal Editor plugin.
 
 ## Install
 
@@ -29,21 +29,22 @@ npx skills add koshimazaki/ue-audio-skills --skill ue5-plugin-dev
 | **ue5-blueprint-audio** | Blueprint audio logic — game event detection, parameter wiring, asset scanning, audio component patterns | No |
 | **ue5-audio-builder** | Full pipeline orchestrator — generates complete MetaSounds + Blueprint + Wwise systems from a single description, 10 audio patterns, AAA project scaffolding | No (offline mode) |
 | **ue5-wwise-setup** | Wwise project automation via WAAPI — bus hierarchies, RTPCs, switches, events, SoundBanks, AudioLink setup | No (needs Wwise) |
-| **ue5-audio-mcp** | TCP plugin control — 42 commands for building MetaSounds graphs, editing Blueprints, spawning audio actors, scanning/exporting assets via the UE5 Editor plugin on port 9877 | Yes |
+| **ue5-audio-mcp** | TCP plugin control — 48 commands for building MetaSounds graphs, editing Blueprints, placing audio actors, staging actors and cameras, scanning/exporting assets via the UE5 Editor plugin on port 9877 | Yes |
 | **ue5-plugin-dev** | Contributor guide — 6-file checklist for adding new C++ TCP commands + Python MCP tool wrappers to the plugin | Yes (source) |
 
 The first four skills work standalone — they provide knowledge, patterns, templates, and WAAPI automation without needing the UE5 Editor plugin. The last two require the [companion plugin](#companion-plugin).
 
 ## Companion Plugin
 
-These skills can drive the **[UE Audio MCP Plugin](https://github.com/koshimazaki/UE-AUDIO-MCP)** — a C++ TCP server running inside Unreal Editor with **42 commands** on port 9877:
+These skills can drive the **[UE Audio MCP Plugin](https://github.com/koshimazaki/UE-AUDIO-MCP)** — a C++ TCP server running inside Unreal Editor with **48 commands** on port 9877:
 
 - **MetaSounds Builder** — create graphs, add nodes, wire connections, set defaults, audition, build to asset
 - **Blueprint Builder** — open BPs, add audio function calls, wire event graphs, compile
 - **World Audio** — spawn emitters, place audio volumes, import sounds, set physical surfaces, place AnimNotify
 - **Query & Export** — list assets, scan blueprints, export full MetaSounds graphs, discover node classes
+- **Actor & Camera** — find actors, set transforms, focus the editor camera, set view targets, possess pawns
 
-The plugin is open source and works with UE 5.4+ (tested on 5.7).
+The plugin is open source and needs UE 5.7.2+.
 
 ## Architecture
 
@@ -58,9 +59,8 @@ Asset scanning       Graph templates        SoundBanks
 
 ## Requirements
 
-- Unreal Engine 5.4+ (MetaSounds Builder API)
-- [UE Audio MCP](https://github.com/koshimazaki/UE5-WWISE) server (Python, for MCP tools)
-- [UE Audio MCP Plugin](https://github.com/koshimazaki/UE-AUDIO-MCP) (C++, for Editor commands — optional)
+- Unreal Engine 5.7.2+ (for the plugin)
+- [UE Audio MCP](https://github.com/koshimazaki/UE-AUDIO-MCP): the Python MCP server (for MCP tools) and the C++ Editor plugin (for Editor commands — optional)
 - Wwise (optional, for full pipeline)
 
 ## Compatibility
@@ -71,3 +71,14 @@ Works with any AI agent that supports the skills standard:
 - Windsurf
 - Codex
 - And [35+ other agents](https://skills.sh)
+
+## Maintaining
+
+The skills are written in [UE-AUDIO-MCP](https://github.com/koshimazaki/UE-AUDIO-MCP) (`.claude/skills/`) and copied here. To update them, run the sync script against a checkout of that repo, then validate:
+
+```bash
+python scripts/sync_from_ue_audio_mcp.py ../UE-AUDIO-MCP
+pip install skills-ref && for d in skills/*/; do agentskills validate "$d"; done
+```
+
+The script adapts the frontmatter to the [Agent Skills spec](https://agentskills.io/specification): space-separated `allowed-tools`, and `argument-hint` under `metadata`.
